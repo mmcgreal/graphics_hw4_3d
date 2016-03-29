@@ -86,6 +86,169 @@ void parse_file ( char * filename,
   else
     f = fopen(filename, "r");
   
+  while ( fgets(line, 255, f) != NULL) {
+    line[strlen(line)-1]='\0';
+    printf(":%s:\n",line);
+    double x, y, z, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4;
+   
+   /*
+    if (line[0] == '#') {
+    }
+    else if ( strncmp(line, "clear", strlen(line)) == 0 ) {
+      pm = new_matrix(4,1);
+    }  */
+      //NEW NEW
+    /*else */if ( strncmp(line, "box", strlen(line)) == 0 ) {
+      fgets(line, 255, f);
+      sscanf(line, "%lf %lf %lf %lf %lf %lf", &x, &y, &z, &x1, &y1, &z1);
+      add_box(pm, x, y, z, x1, y1, z1);
+      //printf( "%lf %lf %lf\n", x, y, z);
+    }  
+    else if ( strncmp(line, "torus", strlen(line)) == 0 ) {
+
+      fgets(line, 255, f);
+      sscanf(line, "%lf %lf %lf %lf", &x, &y, &x1, &y1);
+      add_torus(pm, x, y, x1, y1, 0.01);
+      //printf( "%lf %lf %lf\n", x, y, z);
+    }   
+    else if ( strncmp(line, "sphere", strlen(line)) == 0 ) {
+
+      fgets(line, 255, f);
+      sscanf(line, "%lf %lf %lf", &x, &y, &z);
+      add_sphere(pm, x, y, z, 0.01);
+      //printf( "%lf %lf %lf\n", x, y, z);
+    }   
+    //END OF NEW STUFF
+    else if ( strncmp(line, "line", strlen(line)) == 0 ) {
+      //      printf("LINE!\n");
+      fgets(line, 255, f);
+      //      printf("\t%s", line);
+      //line[strlen(line)-1]='\0';
+      sscanf(line, "%lf %lf %lf %lf %lf %lf", &x, &y, &z, &x1, &y1, &z1);
+      add_edge(pm, x, y, z, x1, y1, z1);
+      // printf( "%lf %lf %lf %lf %lf %lf\n", x, y, z, x1, y1, z1);
+    }
+    else if ( strncmp(line, "circle", strlen(line)) == 0 ) {
+      //printf("CIRCLE\n");
+      fgets(line, 255, f);
+      sscanf(line, "%lf %lf %lf", &x, &y, &z);
+      add_circle(pm, x, y, z, 0.01);
+      //printf( "%lf %lf %lf\n", x, y, z);
+    }    
+    else if ( strncmp(line, "bezier", strlen(line)) == 0 ) {
+      //printf("BEZIER\n");
+      fgets(line, 255, f);
+      sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf",
+       &x1, &y1, &x2, &y2, &x3, &y3, &x4, &y4);
+      add_curve(pm, x1, y1, x2, y2, x3, y3, x4, y4, 0.01, BEZIER_MODE );
+      //printf( "%lf %lf %lf\n", x, y, z);
+    }    
+    else if ( strncmp(line, "hermite", strlen(line)) == 0 ) {
+      //printf("HERMITE\n");
+      fgets(line, 255, f);
+      sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf",
+       &x1, &y1, &x2, &y2, &x3, &y3, &x4, &y4);
+      add_curve(pm, x1, y1, x2, y2, x3, y3, x4, y4, 0.01, HERMITE_MODE );
+      //printf( "%lf %lf %lf\n", x, y, z);
+    }    
+    else if ( strncmp(line, "scale", strlen(line)) == 0 ) {
+      //printf("SCALE\n");
+      fgets(line, 255, f);
+      //line[strlen(line)-1]='\0';      
+      sscanf(line, "%lf %lf %lf", &x, &y, &z);
+      tmp = make_scale(x, y, z);
+      matrix_mult(tmp, transform);
+      //print_matrix(transform);
+    }
+    else if ( strncmp(line, "translate", strlen(line)) == 0 ) {
+      //printf("TRANSLATE\n");
+      fgets(line, 255, f);
+      //      line[strlen(line)-1]='\0';      
+      sscanf(line, "%lf %lf %lf", &x, &y, &z);
+      tmp = make_translate(x, y, z);
+      matrix_mult(tmp, transform);
+      //print_matrix(transform);
+    }
+    else if ( strncmp(line, "xrotate", strlen(line)) == 0 ) {
+      //printf("ROTATE!\n");
+      fgets(line, 255, f);
+      sscanf(line, "%lf", &angle);
+      angle = angle * (M_PI / 180);
+      tmp = make_rotX( angle);
+      matrix_mult(tmp, transform);
+    }
+    else if ( strncmp(line, "yrotate", strlen(line)) == 0 ) {
+      //printf("ROTATE!\n");
+      fgets(line, 255, f);
+      sscanf(line, "%lf", &angle);
+      angle = angle * (M_PI / 180);
+      tmp = make_rotY( angle);
+      matrix_mult(tmp, transform);
+    }
+    else if ( strncmp(line, "zrotate", strlen(line)) == 0 ) {
+      //printf("ROTATE!\n");
+      fgets(line, 255, f);
+      sscanf(line, "%lf", &angle);
+      angle = angle * (M_PI / 180);
+      tmp = make_rotZ( angle);
+      matrix_mult(tmp, transform);
+    }
+    else if ( strncmp(line, "ident", strlen(line)) == 0 ) {
+      ident(transform);
+    }
+    else if ( strncmp(line, "apply", strlen(line)) == 0 ) {
+      //printf("APPLY!\n");
+      //print_matrix( transform );
+      //      print_matrix(pm);
+      matrix_mult(transform, pm);
+    }
+    else if ( strncmp(line, "display", strlen(line)) == 0 ) {
+      clear_screen(s);
+      draw_lines(pm, s, g);
+      display(s);
+    }
+    else if ( strncmp(line, "save", strlen(line)) == 0 ) {
+      fgets(line, 255, f);
+      // line[strlen(line)-1] = '\0';
+      clear_screen(s);
+      draw_lines(pm, s, g);
+      save_extension(s, line);
+    }
+    else if ( strncmp(line, "quit", strlen(line)) == 0 ) {
+      return;
+    }
+    else {
+      printf("Invalid command\n");
+    }
+  }
+  
+  free_matrix(tmp);
+  fclose(f);
+  //printf("END PARSE\n");
+}
+/*
+void parse_file ( char * filename, 
+                  struct matrix * transform, 
+                  struct matrix * pm,
+                  screen s) {
+
+  FILE *f;
+  char line[256];
+  struct matrix * tmp;
+  double angle;
+  color g;
+
+  g.red = 255;
+  g.green = 0;
+  g.blue = 255;
+  
+  clear_screen(s);
+
+  if ( strcmp(filename, "stdin") == 0 ) 
+    f = stdin;
+  else
+    f = fopen(filename, "r");
+  
   while ( fgets(line, 255, f) != NULL ) {
     line[strlen(line)-1]='\0';
     //printf(":%s:\n",line);
@@ -198,6 +361,6 @@ void parse_file ( char * filename,
   free_matrix(tmp);
   fclose(f);
   //printf("END PARSE\n");
-}
+}*/
 
   

@@ -27,6 +27,15 @@
 void add_sphere( struct matrix * points, 
 		 double cx, double cy, double r, 
 		 double step ) {
+  struct matrix *temp;
+  temp = new_matrix(4,1);
+
+  generate_sphere(temp, cx, cy, r, step);
+
+  int col;
+  for(col = 0; col < temp->cols; col++) {
+    add_edge(points, temp->m[0][col], temp->m[1][col], temp->m[2][col], temp->m[0][col], temp->m[1][col], temp->m[2][col]);
+  }
   
 }
 
@@ -49,6 +58,19 @@ void add_sphere( struct matrix * points,
 void generate_sphere( struct matrix * points, 
 		      double cx, double cy, double r, 
 		      double step ) {
+  double i;
+  struct matrix * sphere; //transformation matrix
+  
+  for (i = 0; i < M_PI / 2; i += step) {
+    add_circle(points, cx, cy, r, step);
+    
+    sphere = make_translate(-1*cx, 0, 0);
+    matrix_mult(make_rotX(i), sphere);
+    matrix_mult(sphere, points);
+
+    sphere = make_translate(cx, 0, 0);
+    matrix_mult(sphere, points);
+  }
 }    
 
 /*======== void add_torus() ==========
@@ -72,6 +94,15 @@ void generate_sphere( struct matrix * points,
 void add_torus( struct matrix * points, 
 		double cx, double cy, double r1, double r2, 
 		double step ) {
+  struct matrix *temp;
+  temp = new_matrix(4,1);
+
+  generate_torus(temp, cx, cy, r1, r2, step);
+
+  int col;
+  for(col = 0; col < temp->cols; col++) {
+    add_edge(points, temp->m[0][col], temp->m[1][col], temp->m[2][col], temp->m[0][col], temp->m[1][col], temp->m[2][col]);
+  }
 }
 
 /*======== void generate_torus() ==========
@@ -92,6 +123,19 @@ void add_torus( struct matrix * points,
 void generate_torus( struct matrix * points, 
 		     double cx, double cy, double r1, double r2, 
 		     double step ) {
+  double i;
+  struct matrix * torus; //transformation torus
+  
+  for (i = 0; i < M_PI; i += step) {
+    add_circle(points, cx, cy, r2 - r1, step);
+    
+    torus = make_translate(-1*cx + r1, 0, 0);
+    matrix_mult(make_rotZ(i), torus);
+    matrix_mult(torus, points);
+
+    torus= make_translate(cx - r1, 0, 0);
+    matrix_mult(torus, points);
+  }
 }
 
 /*======== void add_box() ==========
@@ -113,6 +157,15 @@ void generate_torus( struct matrix * points,
 void add_box( struct matrix * points,
 	      double x, double y, double z,
 	      double width, double height, double depth ) {
+  add_edge(points, x, y, z, x, y, z);
+  add_edge(points, x + width, y, z, x + width, y, z);
+  add_edge(points, x, y + height, z, x, y + height, z);
+  add_edge(points, x + width, y + height, z, x + width, y + height, z);
+  
+  add_edge(points, x, y, z + depth, x, y, z + depth);
+  add_edge(points, x + width, y, z + depth, x + width, y, z + depth);
+  add_edge(points, x, y + height, z + depth, x, y + height, z + depth);
+  add_edge(points, x + width, y + height, z + depth, x + width, y + height, z + depth);
 }
   
 /*======== void add_circle() ==========
